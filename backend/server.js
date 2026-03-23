@@ -1,8 +1,8 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-// Load environment from project root .env for consistency with database.js
-require('dotenv').config({ path: path.join(__dirname, '../.env') });
+
 
 const { pool, testConnection, initializeTables } = require('./config/database');
 const { errorHandler } = require('./middleware/error.middleware');
@@ -32,10 +32,27 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api/staff', staffRoutes);
 
 // Serve static files from frontend
-app.use(express.static(path.join(__dirname, '../frontend')));
+// Pathing fix: assume 'frontend' and 'uploads' are in the same root as server.js
+app.use(express.static(path.join(__dirname, 'frontend')));
 
 // Serve uploaded files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// Lazy-initialize DB only on the first request to save "cold start" time
+app.use(async (req, res, next) => {
+  try {
+    // This runs once per "warm" instance
+    if (app.get('db_initialized')) return next();
+    
+    await testConnection();
+    await initializeTables();
+    
+    app.set('db_initialized', true);
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
 
 // // API Routes
 // app.use('/api/auth', authRoutes);
@@ -74,11 +91,11 @@ app.use('/api/dashboard', dashboardRoutes);
 
 // Serve frontend
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/login.html'));
+  res.sendFile(path.join(__dirname, 'frontend/login.html'));
 });
 
 app.get('/app', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/app.html'));
+  res.sendFile(path.join(__dirname, 'frontend/app.html'));
 });
 
 // Error handling
@@ -99,33 +116,15 @@ app.use((req, res) => {
   res.status(404).json({ success: false, error: 'Route not found' });
 });
 
-// Start server
-async function startServer() {
-  try {
-    // Test database connection
-    const dbConnected = await testConnection();
-    
-    if (!dbConnected) {
-      logger.error('Database connection failed. Please check your database configuration.');
-      process.exit(1);
-    }
-    
-    // Initialize tables
-    await initializeTables();
-    
-    // Start listening
-    app.listen(PORT, () => {
-      logger.info(`Server running on port ${PORT}`);
-      logger.info(`Environment: ${process.env.NODE_ENV}`);
-      logger.info(`Frontend URL: http://localhost:${PORT}`);
-      logger.info(`API URL: http://localhost:${PORT}/api`);
-    });
-  } catch (error) {
-    logger.error(`Failed to start server: ${error.message}`);
-    process.exit(1);
-  }
+// Only listen if running locally or on a standard non-serverless host
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    logger.info(`Local server running on port ${PORT}`);
+    logger.info(`Environment: ${process.env.NODE_ENV}`);
+    logger.info(`Frontend URL: http://localhost:${PORT}`);
+    logger.info(`API URL: http://localhost:${PORT}/api`);
+  });
 }
 
-startServer();
-
+// CRITICAL: Export for Vercel
 module.exports = app;

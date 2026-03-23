@@ -3,12 +3,18 @@
  * ADVANCED BI ROUTES
  * Enterprise Business Intelligence API
  * ============================================
+ * const { authenticate, authorize } = require('../middleware/auth.middleware'); no authorize needed
  */
 
 const express = require('express');
 const router = express.Router();
+
+/* MIDDLEWARE */
 const { authenticate, authorize } = require('../middleware/auth.middleware');
+
+/* CONTROLLERS */
 const AdvancedBIController = require('../controllers/advanced-bi.controller');
+
 
 /**
  * ROUTES STRUCTURE:

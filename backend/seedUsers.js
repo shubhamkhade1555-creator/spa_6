@@ -1,11 +1,14 @@
 const mysql = require("mysql2/promise");
 const bcrypt = require("bcryptjs");
 
-require('dotenv').config({ path: require('path').join(__dirname, '../.env') });
-const { pool } = require('./config/database');
-
 async function main() {
-  const connection = await pool.getConnection();
+  const connection = await mysql.createConnection({
+    host: "localhost",
+    user: "root",
+    password: "",          // <-- same as server config
+    database: "salon_system_ks", // <-- same as server config
+    port: 3306             // <-- add if server uses it
+  });
 
   // Create users table
   await connection.execute(`
@@ -30,10 +33,10 @@ async function main() {
 
   // Insert owner + center
   await connection.execute(`
-    INSERT INTO users (email, password, name, role, salon_id)
+    INSERT INTO users (email, password, name, role, salon_id, phone)
     VALUES
-      (?, ?, 'Salon Owner', 'owner', 1),
-      (?, ?, 'Center Manager', 'center', 1)
+      (?, ?, 'Salon Owner', 'owner', 1, '+1234567890'),
+      (?, ?, 'Center Manager', 'center', 1, '+1234567891')
   `, ["owner@gmail.com", ownerHash, "center@gmail.com", centerHash]);
 
   console.log("✅ Users table created and seeded successfully!");
