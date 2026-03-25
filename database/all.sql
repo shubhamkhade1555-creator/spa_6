@@ -1,3 +1,19 @@
+ -- =====================================================
+-- MASTER DATABASE BUILD SCRIPT
+-- Salon Management System + Business Intelligence
+-- Production Grade | InnoDB | UTF8MB4
+-- =====================================================
+
+-- Step 1: Create Database
+DROP DATABASE IF EXISTS salon_management;
+CREATE DATABASE salon_management 
+  CHARACTER SET utf8mb4 
+  COLLATE utf8mb4_unicode_ci;
+USE salon_management;
+
+-- =====================================================
+-- LEVEL 1: BASE TABLES (No Foreign Keys)
+-- =====================================================
 
 -- -----------------------------------------------------
 -- Table `salons`
@@ -915,7 +931,7 @@ CREATE TABLE IF NOT EXISTS `staff_settings` (
 -- Dimension: dim_date
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `dim_date` (
-  `date_key` INT UNSIGNED NOT NULL,
+  `date_key` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `full_date` DATE NOT NULL,
   `year` INT NOT NULL,
   `quarter` INT NOT NULL,
@@ -1246,7 +1262,8 @@ LEFT JOIN staff st ON ce.staff_id = st.id
 LEFT JOIN rooms r ON ce.room_id = r.id
 WHERE ce.booking_date = CURDATE()
   AND ce.event_type = 'booking'
-  AND ce.status NOT IN ('cancelled', 'no_show');
+  AND ce.status NOT IN ('cancelled', 'no_show')
+ORDER BY ce.start_time ASC;
 
 -- View: v_staff_schedule
 CREATE OR REPLACE VIEW `v_staff_schedule` AS
@@ -1318,7 +1335,8 @@ LEFT JOIN calendar_events ce ON b.id = ce.booking_id
 WHERE ce.id IS NULL
   AND b.status IN ('pending', 'confirmed', 'in_progress')
   AND b.booking_date >= CURDATE()
-GROUP BY b.id;
+GROUP BY b.id
+ORDER BY b.booking_date, b.start_time;
 
 -- =====================================================
 -- SEED DATA
@@ -1407,11 +1425,11 @@ INSERT INTO `service_rooms` (`service_id`, `room_id`) VALUES
 
 -- Insert sample customers
 INSERT INTO `customers` (`salon_id`, `name`, `phone`, `email`, `address`, `created_at`) VALUES
-(1, 'John Doe', '9876543210', 'john@example.com', '123 Main St, City', DATE_SUB(NOW(), INTERVAL 30 DAY)),
-(1, 'Jane Smith', '9876543211', 'jane@example.com', '456 Oak Ave, City', DATE_SUB(NOW(), INTERVAL 20 DAY)),
-(1, 'Robert Johnson', '9876543212', 'robert@example.com', '789 Pine Rd, City', DATE_SUB(NOW(), INTERVAL 15 DAY)),
-(1, 'Maria Garcia', '9876543213', 'maria@example.com', '321 Elm St, City', DATE_SUB(NOW(), INTERVAL 10 DAY)),
-(1, 'David Lee', '9876543214', 'david@example.com', '654 Maple Dr, City', DATE_SUB(NOW(), INTERVAL 5 DAY));
+(1, 'John Doe', '9876543210', 'john@example.com', '123 Main St, City', NOW() - INTERVAL 30 DAY),
+(1, 'Jane Smith', '9876543211', 'jane@example.com', '456 Oak Ave, City', NOW() - INTERVAL 20 DAY),
+(1, 'Robert Johnson', '9876543212', 'robert@example.com', '789 Pine Rd, City', NOW() - INTERVAL 15 DAY),
+(1, 'Maria Garcia', '9876543213', 'maria@example.com', '321 Elm St, City', NOW() - INTERVAL 10 DAY),
+(1, 'David Lee', '9876543214', 'david@example.com', '654 Maple Dr, City', NOW() - INTERVAL 5 DAY);
 
 -- Insert sample staff
 INSERT INTO `staff` (`salon_id`, `employee_id`, `name`, `email`, `phone`, `joining_date`, `department`, `designation`, `primary_role`, `status`) VALUES
@@ -1506,36 +1524,24 @@ INSERT INTO `bi_etl_control` (`table_name`, `status`) VALUES
 ('fact_bookings', 'pending'),
 ('fact_expense', 'pending');
 
--- Populate dim_date table (last 2 years + next 1 year)
-SET @counter := -1;
+-- Populate dim_date table (last 2 years)
 INSERT IGNORE INTO `dim_date` (`date_key`, `full_date`, `year`, `quarter`, `month`, `month_name`, `week`, `day_of_week`, `day_name`, `is_weekend`)
 SELECT 
-  DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL a.n DAY), '%Y%m%d') AS date_key,
-  DATE_SUB(CURDATE(), INTERVAL a.n DAY) AS full_date,
-  YEAR(DATE_SUB(CURDATE(), INTERVAL a.n DAY)) AS year,
-  QUARTER(DATE_SUB(CURDATE(), INTERVAL a.n DAY)) AS quarter,
-  MONTH(DATE_SUB(CURDATE(), INTERVAL a.n DAY)) AS month,
-  DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL a.n DAY), '%M') AS month_name,
-  WEEK(DATE_SUB(CURDATE(), INTERVAL a.n DAY)) AS week,
-  DAYOFWEEK(DATE_SUB(CURDATE(), INTERVAL a.n DAY)) AS day_of_week,
-  DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL a.n DAY), '%W') AS day_name,
-  IF(DAYOFWEEK(DATE_SUB(CURDATE(), INTERVAL a.n DAY)) IN (1, 7), 1, 0) AS is_weekend
-FROM (
-  SELECT @counter := @counter + 1 AS n
-  FROM (
-    SELECT 0 UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4
-    UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9
-  ) t1,
-  (
-    SELECT 0 UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4
-    UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9
-  ) t2,
-  (
-    SELECT 0 UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4
-    UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9
-  ) t3
-) a
-WHERE a.n BETWEEN 0 AND 730;
+  DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL a.id DAY), '%Y%m%d') as date_key,
+  DATE_SUB(CURDATE(), INTERVAL a.id DAY) as full_date,
+  YEAR(DATE_SUB(CURDATE(), INTERVAL a.id DAY)) as year,
+  QUARTER(DATE_SUB(CURDATE(), INTERVAL a.id DAY)) as quarter,
+  MONTH(DATE_SUB(CURDATE(), INTERVAL a.id DAY)) as month,
+  DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL a.id DAY), '%M') as month_name,
+  WEEK(DATE_SUB(CURDATE(), INTERVAL a.id DAY)) as week,
+  DAYOFWEEK(DATE_SUB(CURDATE(), INTERVAL a.id DAY)) as day_of_week,
+  DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL a.id DAY), '%W') as day_name,
+  IF(DAYOFWEEK(DATE_SUB(CURDATE(), INTERVAL a.id DAY)) IN (1, 7), TRUE, FALSE) as is_weekend
+FROM (SELECT @id := @id + 1 as id FROM (SELECT 0 UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) t1, 
+      (SELECT 0 UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) t2, 
+      (SELECT 0 UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) t3, 
+      (SELECT @id := -730) t4) a
+WHERE a.id <= 730;
 
 -- =====================================================
 -- VERIFICATION
