@@ -2,6 +2,9 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+const hpp = require('hpp');
 
 
 const { pool, testConnection, initializeTables } = require('./config/database');
@@ -26,10 +29,34 @@ const PORT = process.env.PORT || 3000;
 const calendarRoutes = require('./routes/calendar.routes');
 
 // Middleware
-app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use('/api/staff', staffRoutes);
+app.use(helmet()); // Secure HTTP headers
+
+// CORS configuration (ensure CORS_ORIGIN is set in your .env for production)
+const corsOptions = {
+  origin: process.env.CORS_ORIGIN || '*', 
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  credentials: true
+};
+app.use(cors(corsOptions));
+
+// Body parsing with payload limits to mitigate attacks
+app.use(express.json({ limit: '10kb' }));
+app.use(express.urlencoded({ extended: true, limit: '10kb' }));
+
+// HTTP Parameter Pollution protection
+app.use(hpp());
+
+// API Rate Limiting to prevent brute-force attacks
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  standardHeaders: true, 
+  legacyHeaders: false, 
+  message: { success: false, error: 'Too many requests, please try again later.' }
+});
+
+// Apply rate limiter to all API routes
+app.use('/api/', apiLimiter);
 
 // Serve static files from frontend
 // Pathing fix: assume 'frontend' and 'uploads' are in the same root as server.js
