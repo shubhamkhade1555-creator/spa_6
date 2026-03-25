@@ -1,6 +1,7 @@
 {
   "name": "salon-management-backend",
   "version": "1.0.0",
+  "type": "commonjs",
   "description": "Backend for Salon Management System",
   "main": "server.js",
   "scripts": {
