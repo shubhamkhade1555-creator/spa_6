@@ -1,18 +1,10 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "frontend/**",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "server.js",
-      "use": "@vercel/node",
-      "config": {
-        "includeFiles": "frontend/**"
-      }
+  "functions": {
+    "server.js": {
+      "includeFiles": "frontend/**"
     }
-  ],
+  },
   "routes": [
     {
       "src": "/assets/(.*)",
