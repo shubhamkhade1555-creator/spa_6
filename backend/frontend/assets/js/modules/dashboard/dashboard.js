@@ -42,7 +42,7 @@ export async function render(container) {
 
         <div class="dash-wrap">
             <!-- Filters -->
-            <div class="d-flex flex-wrap align-items-center gap-3 mb-4 p-4 rounded" style="background:var(--color-bg-card); border:1px solid var(--color-border-card)">
+            <div class="d-flex flex-wrap align-items-center gap-3 mb-4 p-4 rounded" style="background:var(--color-bg-card); border:1px solid var(--color-border-card); margin-bottom: 32px !important;">
                 <input type="date" id="dashStart" class="f-select">
                 <span style="color:var(--color-text-muted)">→</span>
                 <input type="date" id="dashEnd" class="f-select">
@@ -59,7 +59,7 @@ export async function render(container) {
             </div>
 
             <!-- Tabs -->
-            <div class="d-flex gap-2 mb-4 overflow-auto pb-1" style="scrollbar-width:thin">
+            <div class="d-flex gap-2 mb-4 overflow-auto pb-1" style="scrollbar-width:thin; margin-bottom: 36px !important;">
                 <button class="tab-btn active" data-tab="revenue"><i class="fas fa-coins"></i> Revenue</button>
                 <button class="tab-btn" data-tab="bookings"><i class="fas fa-calendar-check"></i> Bookings</button>
                 <button class="tab-btn" data-tab="customers"><i class="fas fa-users"></i> Customers</button>
@@ -213,7 +213,7 @@ function renderKPIs(tab, data) {
     const tbl = Array.isArray(data.table) ? data.table : [];
     const completed = tbl.filter(r => r.status === 'completed').length;
     kpis = [
-      { label: 'Total Bookings', value: tbl.length },
+      { label: 'Booked', value: tbl.length },
       { label: 'Completed', value: completed },
       { label: 'Completion Rate', value: tbl.length ? ((completed / tbl.length) * 100).toFixed(1) + '%' : '0%' },
       { label: 'Total Value', value: '₹' + tbl.reduce((s, r) => s + n(r.amount), 0).toLocaleString('en-IN', { maximumFractionDigits: 0 }) }

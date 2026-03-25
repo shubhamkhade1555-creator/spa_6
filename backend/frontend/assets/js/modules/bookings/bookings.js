@@ -530,7 +530,7 @@ export async function render(container) {
             <p id="cancelledBookings" class="stat-value">0</p>
           </div>
           <div class="stat-card">
-            <h3>Total Bookings</h3>
+            <h3>Booked</h3>
             <p id="totalBookings" class="stat-value">0</p>
           </div>
           <div class="stat-card">
@@ -901,7 +901,7 @@ export async function showBookingForm(booking = null) {
                 <label>Search Customer (Phone/Name)</label>
                 <div class="input-with-button">
                   <input type="text" id="customerSearch" placeholder="Enter phone or name...">
-                  <button type="button" class="btn btn-outline" onclick="searchCustomers()">
+                  <button type="button" class="btn btn-outline" style="margin-top: 15px;" onclick="searchCustomers()">
                     <i class="fas fa-search"></i>
                   </button>
                 </div>
