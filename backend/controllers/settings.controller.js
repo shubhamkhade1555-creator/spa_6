@@ -251,26 +251,86 @@ async function deleteUser(req, res) {
 async function exportBackup(req, res) {
   try {
     const salonId = req.user.salon_id;
-    
-    const [usersRows] = await pool.query('SELECT * FROM users WHERE salon_id = ?', [salonId]);
-    const users = usersRows.map(u => { const { password, ...rest } = u; return rest; });
-    
-    const [staff] = await pool.query('SELECT * FROM staff WHERE salon_id = ?', [salonId]);
-    const [customers] = await pool.query('SELECT * FROM customers WHERE salon_id = ?', [salonId]);
-    const [services] = await pool.query('SELECT * FROM services WHERE salon_id = ?', [salonId]);
-    const [bookings] = await pool.query('SELECT * FROM bookings WHERE salon_id = ?', [salonId]);
-    const [invoices] = await pool.query('SELECT * FROM invoices WHERE salon_id = ?', [salonId]);
-    const [expenses] = await pool.query('SELECT * FROM expenses WHERE salon_id = ?', [salonId]);
-    
-    res.json({
-      users,
-      staff,
-      customers,
-      services,
-      bookings,
-      invoices,
-      expenses
-    });
+    const backup = {};
+
+    // Helper: safely query a table (returns [] if the table doesn't exist)
+    async function safeQuery(label, sql, params) {
+      try {
+        const [rows] = await pool.query(sql, params);
+        return rows;
+      } catch (err) {
+        console.warn(`Backup: skipping "${label}" – ${err.message}`);
+        return [];
+      }
+    }
+
+    // ── Core tables ──
+    const usersRows = await safeQuery('users', 'SELECT * FROM users WHERE salon_id = ?', [salonId]);
+    backup.users = usersRows.map(u => { const { password, ...rest } = u; return rest; });
+
+    backup.staff             = await safeQuery('staff',             'SELECT * FROM staff WHERE salon_id = ?', [salonId]);
+    backup.customers         = await safeQuery('customers',         'SELECT * FROM customers WHERE salon_id = ?', [salonId]);
+    backup.services          = await safeQuery('services',          'SELECT * FROM services WHERE salon_id = ?', [salonId]);
+    backup.bookings          = await safeQuery('bookings',          'SELECT * FROM bookings WHERE salon_id = ?', [salonId]);
+    backup.invoices          = await safeQuery('invoices',          'SELECT * FROM invoices WHERE salon_id = ?', [salonId]);
+    backup.expenses          = await safeQuery('expenses',          'SELECT * FROM expenses WHERE salon_id = ?', [salonId]);
+
+    // ── Categories & Rooms ──
+    backup.categories        = await safeQuery('categories',        'SELECT * FROM categories WHERE salon_id = ?', [salonId]);
+    backup.rooms             = await safeQuery('rooms',             'SELECT * FROM rooms WHERE salon_id = ?', [salonId]);
+
+    // ── Service extras ──
+    backup.service_combos    = await safeQuery('service_combos',    'SELECT * FROM service_combos WHERE salon_id = ?', [salonId]);
+    backup.combo_services    = await safeQuery('combo_services',
+      `SELECT cs.* FROM combo_services cs
+       JOIN service_combos sc ON cs.combo_id = sc.id
+       WHERE sc.salon_id = ?`, [salonId]);
+    backup.service_rooms     = await safeQuery('service_rooms',
+      `SELECT sr.* FROM service_rooms sr
+       JOIN services s ON sr.service_id = s.id
+       WHERE s.salon_id = ?`, [salonId]);
+
+    // ── Invoice items ──
+    backup.invoice_items     = await safeQuery('invoice_items',
+      `SELECT ii.* FROM invoice_items ii
+       JOIN invoices i ON ii.invoice_id = i.id
+       WHERE i.salon_id = ?`, [salonId]);
+
+    // ── Booking items ──
+    backup.booking_items     = await safeQuery('booking_items',
+      `SELECT bi.* FROM booking_items bi
+       JOIN bookings b ON bi.booking_id = b.id
+       WHERE b.salon_id = ?`, [salonId]);
+
+    // ── Memberships ──
+    backup.membership_plans  = await safeQuery('membership_plans',  'SELECT * FROM membership_plans WHERE salon_id = ?', [salonId]);
+    backup.memberships       = await safeQuery('memberships',
+      `SELECT m.* FROM memberships m
+       JOIN customers c ON m.customer_id = c.id
+       WHERE c.salon_id = ?`, [salonId]);
+    backup.membership_payments = await safeQuery('membership_payments',
+      `SELECT mp.* FROM membership_payments mp
+       JOIN memberships m ON mp.membership_id = m.id
+       JOIN customers c ON m.customer_id = c.id
+       WHERE c.salon_id = ?`, [salonId]);
+
+    // ── Staff extras ──
+    backup.staff_attendance  = await safeQuery('staff_attendance',
+      `SELECT sa.* FROM staff_attendance sa
+       JOIN staff s ON sa.staff_id = s.id
+       WHERE s.salon_id = ?`, [salonId]);
+    backup.staff_leave_balance = await safeQuery('staff_leave_balance',
+      `SELECT slb.* FROM staff_leave_balance slb
+       JOIN staff s ON slb.staff_id = s.id
+       WHERE s.salon_id = ?`, [salonId]);
+
+    // ── Appointments ──
+    backup.appointments      = await safeQuery('appointments',      'SELECT * FROM appointments WHERE salon_id = ?', [salonId]);
+
+    // ── Salon settings ──
+    backup.salon_settings    = await safeQuery('salon_settings',    'SELECT * FROM salons WHERE id = ?', [salonId]);
+
+    res.json(backup);
   } catch (error) {
     console.error('Backup generation error:', error);
     res.status(500).json({ error: error.message });

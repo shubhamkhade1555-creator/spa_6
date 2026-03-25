@@ -329,7 +329,16 @@ function attachEventListeners(container, savedSettings) {
 
         const data = await api.settings.exportBackup();
         
-        const entities = ['users', 'staff', 'customers', 'services', 'bookings', 'invoices', 'expenses'];
+        const entities = [
+          'users', 'staff', 'customers', 'services', 'bookings',
+          'invoices', 'invoice_items', 'expenses',
+          'categories', 'rooms', 'service_rooms',
+          'service_combos', 'combo_services',
+          'booking_items',
+          'membership_plans', 'memberships', 'membership_payments',
+          'staff_attendance', 'staff_leave_balance',
+          'appointments', 'salon_settings'
+        ];
         let downloadCount = 0;
 
         entities.forEach(entity => {
