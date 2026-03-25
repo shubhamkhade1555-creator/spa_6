@@ -1,9 +1,8 @@
-require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
 // Load environment from project root .env for consistency with database.js
-require('dotenv').config({ path: path.join(__dirname, '../.env') });
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 
 const { pool, testConnection, initializeTables } = require('./config/database');
 const { errorHandler } = require('./middleware/error.middleware');
@@ -25,7 +24,6 @@ const advancedBIRoutes = require('./routes/advanced-bi.routes');
 const app = express();
 const PORT = process.env.PORT || 3000;
 const calendarRoutes = require('./routes/calendar.routes');
-ssl: { rejectUnauthorized: false }
 // Middleware
 app.use(cors());
 app.use(express.json());
@@ -33,7 +31,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api/staff', staffRoutes);
 
 // Serve static files from frontend
-app.use(express.static(path.join(__dirname, '../frontend')));
+app.use(express.static(path.join(__dirname, 'frontend')));
 
 // Serve uploaded files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
@@ -75,11 +73,11 @@ app.use('/api/dashboard', dashboardRoutes);
 
 // Serve frontend
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/login.html'));
+  res.sendFile(path.join(__dirname, 'frontend/login.html'));
 });
 
 app.get('/app', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/app.html'));
+  res.sendFile(path.join(__dirname, 'frontend/app.html'));
 });
 
 // Error handling
