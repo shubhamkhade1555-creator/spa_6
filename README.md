@@ -88,7 +88,7 @@ A comprehensive salon management system built with Node.js, Express, MySQL, and 
     
     ```env
     PORT=3000
-    NODE_ENV=development
+    NODE_ENV=production
     
     DB_HOST=localhost
     DB_USER=root
