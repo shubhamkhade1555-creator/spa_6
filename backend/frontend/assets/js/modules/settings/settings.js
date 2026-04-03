@@ -120,10 +120,10 @@ export async function render(container) {
         <div style="display: flex; justify-content: space-between; align-items: center;">
           <div>
             <h4>Data Backup</h4>
-            <p class="text-muted mb-0">Export all your salon data (customers, services, bookings, invoices, etc.) to CSV files for your records.</p>
+            <p class="text-muted mb-0">Export all your salon data (customers, services, bookings, invoices, etc.) to a single Excel file for your records.</p>
           </div>
           <button id="createBackupBtn" class="btn btn-primary">
-            <i class="fas fa-download"></i> Create CSV Backup
+            <i class="fas fa-download"></i> Download Full Backup
           </button>
         </div>
       </div>
@@ -341,26 +341,24 @@ function attachEventListeners(container, savedSettings) {
         ];
         let downloadCount = 0;
 
-        entities.forEach(entity => {
-          if (data[entity] && data[entity].length > 0) {
-            const csv = Papa.unparse(data[entity]);
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            const url = URL.createObjectURL(blob);
-            link.setAttribute('href', url);
-            link.setAttribute('download', `backup_${entity}_${new Date().toISOString().split('T')[0]}.csv`);
-            link.style.display = 'none';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            downloadCount++;
-          }
-        });
+        if (typeof XLSX !== 'undefined') {
+          const wb = XLSX.utils.book_new();
+          entities.forEach(entity => {
+            if (data[entity] && data[entity].length > 0) {
+              const ws = XLSX.utils.json_to_sheet(data[entity]);
+              XLSX.utils.book_append_sheet(wb, ws, entity.substring(0, 31));
+              downloadCount++;
+            }
+          });
 
-        if (downloadCount > 0) {
-          utils.showToast(`Successfully exported ${downloadCount} backup files`, 'success');
+          if (downloadCount > 0) {
+            XLSX.writeFile(wb, `salon_backup_${new Date().toISOString().split('T')[0]}.xlsx`);
+            utils.showToast(`Successfully exported ${downloadCount} modules to Excel backup`, 'success');
+          } else {
+            utils.showToast('No data available to backup', 'info');
+          }
         } else {
-          utils.showToast('No data available to backup', 'info');
+          utils.showToast('Export library not loaded, please try again.', 'error');
         }
 
         btn.innerHTML = originalText;
@@ -368,7 +366,7 @@ function attachEventListeners(container, savedSettings) {
       } catch (error) {
         console.error('Backup error:', error);
         utils.showToast('Failed to create backup: ' + error.message, 'error');
-        this.innerHTML = '<i class="fas fa-download"></i> Create CSV Backup';
+        this.innerHTML = '<i class="fas fa-download"></i> Download Full Backup';
         this.disabled = false;
       }
     });
