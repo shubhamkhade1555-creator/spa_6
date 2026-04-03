@@ -2224,8 +2224,34 @@ const api = {
       return api.request('/settings');
     },
 
-    exportBackup() {
-      return api.request('/settings/backup');
+    exportBackup(includePasswords = false) {
+      return api.request(`/settings/backup?includePasswords=${includePasswords}`);
+    },
+
+    exportFullBackup() {
+      return api.request('/settings/backup/full');
+    },
+
+    importBackup(data, mode = 'merge', sourceFormat = 'json', sourceFilename = '') {
+      return api.request('/settings/backup/import', {
+        method: 'POST',
+        body: JSON.stringify({ data, mode, sourceFormat, sourceFilename })
+      });
+    },
+
+    importBackupFile(formData) {
+      return api.request('/settings/backup/import-file', {
+        method: 'POST',
+        body: formData
+      });
+    },
+
+    getBackupLogs(limit = 50) {
+      return api.request(`/settings/backup/logs?limit=${limit}`);
+    },
+
+    getBackupStats() {
+      return api.request('/settings/backup/stats');
     },
 
     update(data) {
