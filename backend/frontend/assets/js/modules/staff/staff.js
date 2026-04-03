@@ -134,15 +134,15 @@ function renderStaffDashboard(dashboardData, today) {
         <h4><svg width="22" height="22" viewBox="0 0 24 24" class="inline-icon" style="vertical-align:middle;display:inline-flex;transition:0.3s ease;"><rect x="4" y="2" width="16" height="20" rx="2" stroke="currentColor" stroke-width="1.5" fill="none"/><path d="M8 6h8M8 10h8M8 14h6" stroke="currentColor" stroke-width="1.5" fill="none"/></svg> Today's Staff Summary</h4>
         <div class="mt-2">
           <p><strong>Date: ${utils.formatDate(today)}</strong></p>
-          <div class="d-flex gap-3 mt-3" style="margin-top: 24px !important;">
-            <span class="badge badge-success clickable" onclick="staffModule.viewTodayAttendance()" title="Click to view present staff">
-              <svg width="18" height="18" viewBox="0 0 24 24" class="inline-icon" style="vertical-align:middle;display:inline-flex;transition:0.3s ease;"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5" fill="none"/><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="1.5" fill="none"/></svg> Present: ${todayAttendance.present || 0}
+          <div class="d-flex flex-wrap mt-3" style="margin-top: 24px !important; gap: 24px;">
+            <span class="badge badge-success clickable" onclick="staffModule.viewTodayAttendance()" title="Click to view present staff" style="padding: 8px 16px;">
+              <svg width="18" height="18" viewBox="0 0 24 24" class="inline-icon" style="vertical-align:middle;display:inline-flex;transition:0.3s ease;margin-right:4px;"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5" fill="none"/><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="1.5" fill="none"/></svg> Present: ${todayAttendance.present || 0}
             </span>
-            <span class="badge badge-danger clickable" onclick="staffModule.viewAbsentStaff()" title="Click to view absent staff">
-              <svg width="18" height="18" viewBox="0 0 24 24" class="inline-icon" style="vertical-align:middle;display:inline-flex;transition:0.3s ease;"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5" fill="none"/><path d="M15 9l-6 6M9 9l6 6" stroke="currentColor" stroke-width="1.5" fill="none"/></svg> Absent: ${absentCount}
+            <span class="badge badge-danger clickable" onclick="staffModule.viewAbsentStaff()" title="Click to view absent staff" style="padding: 8px 16px;">
+              <svg width="18" height="18" viewBox="0 0 24 24" class="inline-icon" style="vertical-align:middle;display:inline-flex;transition:0.3s ease;margin-right:4px;"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5" fill="none"/><path d="M15 9l-6 6M9 9l6 6" stroke="currentColor" stroke-width="1.5" fill="none"/></svg> Absent: ${absentCount}
             </span>
-            <span class="badge badge-warning clickable" onclick="staffModule.viewLateStaff()" title="Click to view late staff">
-              <svg width="18" height="18" viewBox="0 0 24 24" class="inline-icon" style="vertical-align:middle;display:inline-flex;transition:0.3s ease;"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5" fill="none"/><path d="M12 7v5l3 3" stroke="currentColor" stroke-width="1.5" fill="none"/></svg> Late: ${todayAttendance.late || 0}
+            <span class="badge badge-warning clickable" onclick="staffModule.viewLateStaff()" title="Click to view late staff" style="padding: 8px 16px;">
+              <svg width="18" height="18" viewBox="0 0 24 24" class="inline-icon" style="vertical-align:middle;display:inline-flex;transition:0.3s ease;margin-right:4px;"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5" fill="none"/><path d="M12 7v5l3 3" stroke="currentColor" stroke-width="1.5" fill="none"/></svg> Late: ${todayAttendance.late || 0}
             </span>
           </div>
           

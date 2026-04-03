@@ -78,11 +78,9 @@ export async function render(container) {
         <div class="form-group">
           <label>GST Configuration</label>
 
-          <div style="margin-bottom:8px;">
-            <label>
-              <input type="checkbox" id="gstEnabled" ${savedSettings.billing?.gst_enabled ? 'checked' : ''}>
-              Enable GST
-            </label>
+          <div style="margin-bottom:8px; display: flex; align-items: center; gap: 8px;">
+            <input type="checkbox" id="gstEnabled" style="width: auto; margin: 0; min-height: auto;" ${savedSettings.billing?.gst_enabled ? 'checked' : ''}>
+            <label for="gstEnabled" style="margin: 0;">Enable GST</label>
           </div>
 
           <div style="display:flex; gap:10px;">
