@@ -313,15 +313,44 @@ async function exportBackup(req, res) {
        JOIN memberships m ON mp.membership_id = m.id
        JOIN customers c ON m.customer_id = c.id
        WHERE c.salon_id = ?`, [salonId]);
+    backup.guest_passes      = await safeQuery('guest_passes',
+      `SELECT gp.* FROM guest_passes gp
+       JOIN memberships m ON gp.membership_id = m.id
+       JOIN customers c ON m.customer_id = c.id
+       WHERE c.salon_id = ?`, [salonId]);
+    backup.membership_plan_allowed_categories = await safeQuery('membership_plan_allowed_categories',
+      `SELECT mpac.* FROM membership_plan_allowed_categories mpac
+       JOIN membership_plans mp ON mpac.plan_id = mp.id
+       WHERE mp.salon_id = ?`, [salonId]);
+    backup.membership_plan_time_restrictions = await safeQuery('membership_plan_time_restrictions',
+      `SELECT mptr.* FROM membership_plan_time_restrictions mptr
+       JOIN membership_plans mp ON mptr.plan_id = mp.id
+       WHERE mp.salon_id = ?`, [salonId]);
 
     // ── Staff extras ──
     backup.staff_attendance  = await safeQuery('staff_attendance',
       `SELECT sa.* FROM staff_attendance sa
        JOIN staff s ON sa.staff_id = s.id
        WHERE s.salon_id = ?`, [salonId]);
+    backup.staff_leaves      = await safeQuery('staff_leaves',
+      `SELECT sl.* FROM staff_leaves sl
+       JOIN staff s ON sl.staff_id = s.id
+       WHERE s.salon_id = ?`, [salonId]);
     backup.staff_leave_balance = await safeQuery('staff_leave_balance',
       `SELECT slb.* FROM staff_leave_balance slb
        JOIN staff s ON slb.staff_id = s.id
+       WHERE s.salon_id = ?`, [salonId]);
+    backup.staff_schedule    = await safeQuery('staff_schedule',
+      `SELECT ss.* FROM staff_schedule ss
+       JOIN staff s ON ss.staff_id = s.id
+       WHERE s.salon_id = ?`, [salonId]);
+    backup.staff_performance = await safeQuery('staff_performance',
+      `SELECT sp.* FROM staff_performance sp
+       JOIN staff s ON sp.staff_id = s.id
+       WHERE s.salon_id = ?`, [salonId]);
+    backup.staff_commission  = await safeQuery('staff_commission',
+      `SELECT sc.* FROM staff_commission sc
+       JOIN staff s ON sc.staff_id = s.id
        WHERE s.salon_id = ?`, [salonId]);
 
     // ── Appointments ──

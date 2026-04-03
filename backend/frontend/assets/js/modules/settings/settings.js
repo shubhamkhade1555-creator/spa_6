@@ -336,7 +336,9 @@ function attachEventListeners(container, savedSettings) {
           'service_combos', 'combo_services',
           'booking_items',
           'membership_plans', 'memberships', 'membership_payments',
-          'staff_attendance', 'staff_leave_balance',
+          'guest_passes', 'membership_plan_allowed_categories', 'membership_plan_time_restrictions',
+          'staff_attendance', 'staff_leaves', 'staff_leave_balance',
+          'staff_schedule', 'staff_performance', 'staff_commission',
           'appointments', 'salon_settings'
         ];
         let downloadCount = 0;
