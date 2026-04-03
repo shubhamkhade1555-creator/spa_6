@@ -81,9 +81,14 @@ app.use((err, req, res, next) => {
   });
 });
 
-// 404 handler
-app.use((req, res) => {
+// API 404 handler (only for /api/* routes)
+app.use('/api', (req, res) => {
   res.status(404).json({ success: false, error: 'Route not found' });
+});
+
+// All other unhandled GET routes fall back to the frontend SPA
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/app.html'));
 });
 
 // Start server
