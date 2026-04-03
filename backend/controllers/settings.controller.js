@@ -353,8 +353,6 @@ async function exportBackup(req, res) {
        JOIN staff s ON sc.staff_id = s.id
        WHERE s.salon_id = ?`, [salonId]);
 
-    // ── Appointments ──
-    backup.appointments      = await safeQuery('appointments',      'SELECT * FROM appointments WHERE salon_id = ?', [salonId]);
 
     // ── Salon settings ──
     backup.salon_settings    = await safeQuery('salon_settings',    'SELECT * FROM salons WHERE id = ?', [salonId]);
