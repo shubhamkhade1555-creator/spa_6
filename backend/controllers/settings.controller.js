@@ -380,7 +380,6 @@ async function exportBackup(req, res) {
       totalRecords += rows.length;
     }
 
-<<<<<<< HEAD
     // Log the backup
     await BackupModel.createLog({
       salon_id: salonId,
@@ -396,100 +395,6 @@ async function exportBackup(req, res) {
         includePasswords
       }
     }).catch(err => console.warn('Backup log failed:', err.message));
-=======
-    // ── Core tables ──
-    const usersRows = await safeQuery('users', 'SELECT * FROM users WHERE salon_id = ?', [salonId]);
-    backup.users = usersRows.map(u => { const { password, ...rest } = u; return rest; });
-
-    backup.staff             = await safeQuery('staff',             'SELECT * FROM staff WHERE salon_id = ?', [salonId]);
-    backup.customers         = await safeQuery('customers',         'SELECT * FROM customers WHERE salon_id = ?', [salonId]);
-    backup.services          = await safeQuery('services',          'SELECT * FROM services WHERE salon_id = ?', [salonId]);
-    backup.bookings          = await safeQuery('bookings',          'SELECT * FROM bookings WHERE salon_id = ?', [salonId]);
-    backup.invoices          = await safeQuery('invoices',          'SELECT * FROM invoices WHERE salon_id = ?', [salonId]);
-    backup.expenses          = await safeQuery('expenses',          'SELECT * FROM expenses WHERE salon_id = ?', [salonId]);
-
-    // ── Categories & Rooms ──
-    backup.categories        = await safeQuery('categories',        'SELECT * FROM categories WHERE salon_id = ?', [salonId]);
-    backup.rooms             = await safeQuery('rooms',             'SELECT * FROM rooms WHERE salon_id = ?', [salonId]);
-
-    // ── Service extras ──
-    backup.service_combos    = await safeQuery('service_combos',    'SELECT * FROM service_combos WHERE salon_id = ?', [salonId]);
-    backup.combo_services    = await safeQuery('combo_services',
-      `SELECT cs.* FROM combo_services cs
-       JOIN service_combos sc ON cs.combo_id = sc.id
-       WHERE sc.salon_id = ?`, [salonId]);
-    backup.service_rooms     = await safeQuery('service_rooms',
-      `SELECT sr.* FROM service_rooms sr
-       JOIN services s ON sr.service_id = s.id
-       WHERE s.salon_id = ?`, [salonId]);
-
-    // ── Invoice items ──
-    backup.invoice_items     = await safeQuery('invoice_items',
-      `SELECT ii.* FROM invoice_items ii
-       JOIN invoices i ON ii.invoice_id = i.id
-       WHERE i.salon_id = ?`, [salonId]);
-
-    // ── Booking items ──
-    backup.booking_items     = await safeQuery('booking_items',
-      `SELECT bi.* FROM booking_items bi
-       JOIN bookings b ON bi.booking_id = b.id
-       WHERE b.salon_id = ?`, [salonId]);
-
-    // ── Memberships ──
-    backup.membership_plans  = await safeQuery('membership_plans',  'SELECT * FROM membership_plans WHERE salon_id = ?', [salonId]);
-    backup.memberships       = await safeQuery('memberships',
-      `SELECT m.* FROM memberships m
-       JOIN customers c ON m.customer_id = c.id
-       WHERE c.salon_id = ?`, [salonId]);
-    backup.membership_payments = await safeQuery('membership_payments',
-      `SELECT mp.* FROM membership_payments mp
-       JOIN memberships m ON mp.membership_id = m.id
-       JOIN customers c ON m.customer_id = c.id
-       WHERE c.salon_id = ?`, [salonId]);
-    backup.guest_passes      = await safeQuery('guest_passes',
-      `SELECT gp.* FROM guest_passes gp
-       JOIN memberships m ON gp.membership_id = m.id
-       JOIN customers c ON m.customer_id = c.id
-       WHERE c.salon_id = ?`, [salonId]);
-    backup.membership_plan_allowed_categories = await safeQuery('membership_plan_allowed_categories',
-      `SELECT mpac.* FROM membership_plan_allowed_categories mpac
-       JOIN membership_plans mp ON mpac.plan_id = mp.id
-       WHERE mp.salon_id = ?`, [salonId]);
-    backup.membership_plan_time_restrictions = await safeQuery('membership_plan_time_restrictions',
-      `SELECT mptr.* FROM membership_plan_time_restrictions mptr
-       JOIN membership_plans mp ON mptr.plan_id = mp.id
-       WHERE mp.salon_id = ?`, [salonId]);
-
-    // ── Staff extras ──
-    backup.staff_attendance  = await safeQuery('staff_attendance',
-      `SELECT sa.* FROM staff_attendance sa
-       JOIN staff s ON sa.staff_id = s.id
-       WHERE s.salon_id = ?`, [salonId]);
-    backup.staff_leaves      = await safeQuery('staff_leaves',
-      `SELECT sl.* FROM staff_leaves sl
-       JOIN staff s ON sl.staff_id = s.id
-       WHERE s.salon_id = ?`, [salonId]);
-    backup.staff_leave_balance = await safeQuery('staff_leave_balance',
-      `SELECT slb.* FROM staff_leave_balance slb
-       JOIN staff s ON slb.staff_id = s.id
-       WHERE s.salon_id = ?`, [salonId]);
-    backup.staff_schedule    = await safeQuery('staff_schedule',
-      `SELECT ss.* FROM staff_schedule ss
-       JOIN staff s ON ss.staff_id = s.id
-       WHERE s.salon_id = ?`, [salonId]);
-    backup.staff_performance = await safeQuery('staff_performance',
-      `SELECT sp.* FROM staff_performance sp
-       JOIN staff s ON sp.staff_id = s.id
-       WHERE s.salon_id = ?`, [salonId]);
-    backup.staff_commission  = await safeQuery('staff_commission',
-      `SELECT sc.* FROM staff_commission sc
-       JOIN staff s ON sc.staff_id = s.id
-       WHERE s.salon_id = ?`, [salonId]);
-
-
-    // ── Salon settings ──
-    backup.salon_settings    = await safeQuery('salon_settings',    'SELECT * FROM salons WHERE id = ?', [salonId]);
->>>>>>> 9d359534901ac3539da74d0022eb54022f693d4b
 
     res.json(backup);
   } catch (error) {
