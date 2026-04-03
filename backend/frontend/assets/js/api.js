@@ -1668,6 +1668,12 @@ const api = {
         console.log('[API Response]', response.status, url, (contentType && contentType.includes('application/json')) ? data : '[non-json]');
       }
       if (!response.ok) {
+        if (response.status === 401) {
+          api.removeToken();
+          if (window.location.hash !== '#login') {
+            window.location.hash = 'login';
+          }
+        }
         throw new Error(data.error || data.message || `HTTP ${response.status}: ${response.statusText}`);
       }
 
