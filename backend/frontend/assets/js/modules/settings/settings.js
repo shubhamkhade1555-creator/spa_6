@@ -414,10 +414,7 @@ async function handleExportXlsx(btn, includePasswords = false) {
       ? await api.settings.exportFullBackup()
       : await api.settings.exportBackup();
 
-    if (typeof XLSX === 'undefined') {
-      utils.showToast('Excel library not loaded yet. Please wait a moment and try again.', 'error');
-      return;
-    }
+    await utils.ensureXLSX();
 
     const wb = XLSX.utils.book_new();
     let downloadCount = 0;
@@ -455,10 +452,7 @@ async function handleExportCsv(btn) {
   try {
     const data = await api.settings.exportBackup();
 
-    if (typeof Papa === 'undefined') {
-      utils.showToast('CSV library not loaded yet. Please wait a moment and try again.', 'error');
-      return;
-    }
+    await utils.ensurePapaParse();
 
     // Create a zip-like approach: download each table as separate CSV bundled in a single multi-sheet approach
     // Or create one CSV per table and zip them. For simplicity, we'll create one combined JSON + individual CSVs
@@ -578,6 +572,15 @@ async function handleImportFile(file, container) {
   }
 
   selectedImportFile = file;
+
+  // Pre-load libraries needed for parsing
+  try {
+    if (ext === 'xlsx' || ext === 'xls') await utils.ensureXLSX();
+    if (ext === 'csv') await utils.ensurePapaParse();
+  } catch (e) {
+    utils.showToast('Failed to load parser library: ' + e.message, 'error');
+    return;
+  }
   const sizeStr = file.size > 1024 * 1024
     ? (file.size / (1024 * 1024)).toFixed(1) + ' MB'
     : (file.size / 1024).toFixed(1) + ' KB';

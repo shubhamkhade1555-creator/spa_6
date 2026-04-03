@@ -24,8 +24,11 @@ const poolOptions = {
     database: process.env.DB_NAME,
     port: process.env.DB_PORT || 19968,
     waitForConnections: true,
-    connectionLimit: 10,
+    connectionLimit: 5,
     queueLimit: 0,
+    connectTimeout: 10000,
+    enableKeepAlive: true,
+    keepAliveInitialDelay: 10000,
     // Aiven specific SSL requirement
     ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : null
 };

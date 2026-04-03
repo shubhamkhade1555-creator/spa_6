@@ -752,12 +752,14 @@ async function getBackupStats(req, res) {
       [salonId]
     ).catch(() => [[]]);
 
-    // Count total data records across all tables
+    // Fast record count using COUNT(*) instead of SELECT * on each table
     let totalDataRecords = 0;
-    for (const entity of BACKUP_ENTITIES) {
-      if (entity.key === 'salon_settings') continue;
-      const rows = await safeQuery(entity.key, entity.sql, [salonId]);
-      totalDataRecords += rows.length;
+    const directTables = ['users', 'staff', 'customers', 'services', 'bookings', 'invoices', 'expenses', 'categories', 'rooms', 'service_combos', 'membership_plans'];
+    for (const table of directTables) {
+      try {
+        const [[{ c }]] = await pool.query(`SELECT COUNT(*) as c FROM \`${table}\` WHERE salon_id = ?`, [salonId]);
+        totalDataRecords += c;
+      } catch { /* table may not exist */ }
     }
 
     res.json({

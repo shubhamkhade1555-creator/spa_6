@@ -109,6 +109,30 @@ const utils = {
     return div.innerHTML;
   },
 
+  // Lazy-load a script only when needed (returns promise)
+  _loadedScripts: {},
+  loadScript(src) {
+    if (this._loadedScripts[src]) return this._loadedScripts[src];
+    this._loadedScripts[src] = new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = src;
+      s.onload = resolve;
+      s.onerror = () => reject(new Error(`Failed to load: ${src}`));
+      document.head.appendChild(s);
+    });
+    return this._loadedScripts[src];
+  },
+
+  async ensureXLSX() {
+    if (typeof XLSX !== 'undefined') return;
+    await this.loadScript('/assets/js/lib/xlsx.min.js');
+  },
+
+  async ensurePapaParse() {
+    if (typeof Papa !== 'undefined') return;
+    await this.loadScript('/assets/js/lib/papaparse.min.js');
+  },
+
   // Format date to readable string
   formatDate(dateString) {
     const options = { year: 'numeric', month: 'short', day: 'numeric' };

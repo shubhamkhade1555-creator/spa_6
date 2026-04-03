@@ -19,10 +19,9 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
   <!-- Axios for API calls -->
   <script src="https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js" defer></script>
-  <!-- Export Libraries - jsPDF, html2canvas, xlsx -->
+  <!-- Export Libraries - loaded on demand for performance -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" defer></script>
-  <script src="assets/js/lib/xlsx.min.js"></script>
-  <script src="assets/js/lib/papaparse.min.js"></script>
+  <!-- XLSX (861KB) and PapaParse (19KB) lazy-loaded only when backup/export is used -->
 
 </head>
 

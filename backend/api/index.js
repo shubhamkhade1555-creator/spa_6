@@ -24,13 +24,16 @@ const staffRoutes = require('../routes/staff.routes');
 const advancedBIRoutes = require('../routes/advanced-bi.routes');
 const calendarRoutes = require('../routes/calendar.routes');
 
+const compression = require('compression');
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware
+app.use(compression()); // gzip all responses — reduces payload 60-80%
 app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // ================= API ROUTES =================
 
@@ -52,9 +55,18 @@ app.use('/api/customers', customerRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 
-// Serve static files from frontend
-// Pathing fix: 'frontend' is one level up from 'api/'
-app.use(express.static(path.join(__dirname, '../frontend')));
+// Serve static files with caching headers
+app.use(express.static(path.join(__dirname, '../frontend'), {
+  maxAge: '1d',
+  etag: true,
+  lastModified: true,
+  setHeaders: (res, filePath) => {
+    // Cache JS/CSS libs for 7 days, other static for 1 day
+    if (filePath.includes('/lib/')) {
+      res.setHeader('Cache-Control', 'public, max-age=604800'); // 7 days
+    }
+  }
+}));
 
 // Serve uploaded files
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
