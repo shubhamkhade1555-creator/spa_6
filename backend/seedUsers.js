@@ -1,17 +1,17 @@
-const mysql = require("mysql2/promise");
 const bcrypt = require("bcryptjs");
+const path = require("path");
+require("dotenv").config({ path: path.join(__dirname, ".env") });
+const { pool, testConnection } = require("./config/database");
 
 async function main() {
-  const connection = await mysql.createConnection({
-    host: "localhost",
-    user: "root",
-    password: "",          // <-- same as server config
-    database: "salon_system_ks", // <-- same as server config
-    port: 3306             // <-- add if server uses it
-  });
+  const connected = await testConnection();
+  if (!connected) {
+    console.error("Database connection failed.");
+    process.exit(1);
+  }
 
   // Create users table
-  await connection.execute(`
+  await pool.query(`
     CREATE TABLE IF NOT EXISTS users (
       id INT AUTO_INCREMENT PRIMARY KEY,
       email VARCHAR(255) UNIQUE NOT NULL,
@@ -32,11 +32,13 @@ async function main() {
   const centerHash = await bcrypt.hash("center@123", 10);
 
   // Insert owner + center
-  await connection.execute(`
+  await pool.query(`
     INSERT INTO users (email, password, name, role, salon_id, phone)
     VALUES
       (?, ?, 'Salon Owner', 'owner', 1, '+1234567890'),
       (?, ?, 'Center Manager', 'center', 1, '+1234567891')
+    ON DUPLICATE KEY UPDATE 
+      password = VALUES(password)
   `, ["owner@gmail.com", ownerHash, "center@gmail.com", centerHash]);
 
   console.log("✅ Users table created and seeded successfully!");
