@@ -308,7 +308,6 @@ const BACKUP_ENTITIES = [
   { key: 'staff_schedule',      sql: `SELECT ss.* FROM staff_schedule ss JOIN staff s ON ss.staff_id = s.id WHERE s.salon_id = ?` },
   { key: 'staff_performance',   sql: `SELECT sp.* FROM staff_performance sp JOIN staff s ON sp.staff_id = s.id WHERE s.salon_id = ?` },
   { key: 'staff_commission',    sql: `SELECT sc.* FROM staff_commission sc JOIN staff s ON sc.staff_id = s.id WHERE s.salon_id = ?` },
-  { key: 'appointments',   sql: 'SELECT * FROM appointments WHERE salon_id = ?',   direct: true },
   { key: 'salon_settings', sql: 'SELECT * FROM salons WHERE id = ?',               direct: true },
 ];
 
@@ -318,7 +317,7 @@ const IMPORT_ORDER = [
   'services', 'service_combos', 'combo_services', 'service_rooms',
   'membership_plans', 'memberships', 'membership_payments', 'guest_passes',
   'membership_plan_allowed_categories', 'membership_plan_time_restrictions',
-  'bookings', 'booking_items', 'appointments',
+  'bookings', 'booking_items',
   'invoices', 'invoice_items', 'expenses',
   'staff_attendance', 'staff_leaves', 'staff_leave_balance',
   'staff_schedule', 'staff_performance', 'staff_commission'

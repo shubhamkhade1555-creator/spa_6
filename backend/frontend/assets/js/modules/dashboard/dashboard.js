@@ -445,7 +445,7 @@ function renderTable(tab, data) {
 
 function exportCSV() {
   const tbl = currentTabData?.table;
-  if (!Array.isArray(tbl) || !tbl.length) { alert('No data to export.'); return; }
+  if (!Array.isArray(tbl) || !tbl.length) { utils.showToast('No data to export', 'info'); return; }
   const cols = Object.keys(tbl[0]);
   const csv = [cols.join(','), ...tbl.map(r => cols.map(c => `"${r[c] ?? ''}"`).join(','))].join('\n');
   const a = document.createElement('a');

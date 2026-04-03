@@ -101,6 +101,14 @@
 
 // Utility functions
 const utils = {
+  // HTML escape to prevent XSS
+  escapeHtml(str) {
+    if (str === null || str === undefined) return '';
+    const div = document.createElement('div');
+    div.textContent = String(str);
+    return div.innerHTML;
+  },
+
   // Format date to readable string
   formatDate(dateString) {
     const options = { year: 'numeric', month: 'short', day: 'numeric' };
@@ -331,67 +339,7 @@ const utils = {
     }
   }
 
-  // ------------------ Theme Toggle ------------------
-  function initThemeToggle() {
-    try {
-      const current = localStorage.getItem('theme') || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'night' : 'day');
-      if (current === 'night') document.body.classList.add('theme-night');
-
-      const btn = document.createElement('button');
-      btn.className = 'theme-toggle';
-      btn.setAttribute('aria-label', 'Toggle day night theme');
-      btn.style.border = 'none';
-      btn.style.background = 'transparent';
-      btn.style.cursor = 'pointer';
-      btn.style.display = 'inline-flex';
-      btn.style.alignItems = 'center';
-      btn.style.gap = '8px';
-      btn.style.padding = '8px';
-  
-
-      function refresh() {
-        if (document.body.classList.contains('theme-night')) {
-          btn.title = 'Switch to Day mode';
-          localStorage.setItem('theme', 'night');
-          btn.style.color = 'var(--accent-gold)';
-        } else {
-          btn.title = 'Switch to Night mode';
-          localStorage.setItem('theme', 'day');
-          btn.style.color = 'var(--primary-teal)';
-        }
-      }
-
-      btn.addEventListener('click', (e) => {
-        document.body.classList.toggle('theme-night');
-        // small rotate animation for affordance
-        const icon = btn.querySelector('.toggle-icon');
-        if (icon) {
-          icon.style.transition = 'transform 0.45s cubic-bezier(0.4,0,0.2,1)';
-          icon.style.transform = 'rotate(180deg)';
-          setTimeout(() => { icon.style.transform = ''; }, 460);
-        }
-        refresh();
-      });
-
-      // place toggle in top-header if present, otherwise fixed top-right
-      const header = document.querySelector('.top-header');
-      if (header) {
-        const container = document.createElement('div');
-        container.style.display = 'flex';
-        container.style.alignItems = 'center';
-        container.appendChild(btn);
-        header.appendChild(container);
-      } else {
-        btn.style.position = 'fixed';
-        btn.style.right = '18px';
-        btn.style.top = '14px';
-        btn.style.zIndex = 4500;
-        document.body.appendChild(btn);
-      }
-
-      refresh();
-    } catch (e) {}
-  }
+  // Theme toggle handled by theme-toggle.js — removed duplicate here
 
   // ------------------ Scroll Reveal ------------------
   function initScrollReveal() {
@@ -556,7 +504,7 @@ const utils = {
   // Initialize all in a safe sequence
   document.addEventListener('DOMContentLoaded', () => {
     createPreloader();
-    initThemeToggle();
+    // initThemeToggle removed — handled by theme-toggle.js
     initScrollReveal();
     initFloating();
     initImageZoom();

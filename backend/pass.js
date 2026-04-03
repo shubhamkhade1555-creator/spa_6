@@ -14,9 +14,9 @@ async function updatePasswords() {
     console.log('Generating password hashes and updating DB...\n');
 
     const users = [
-      { email: 'owner@gmail.com',  password: 'owner@123',  role: 'owner'  },
-      { email: 'center@gmail.com', password: 'center@123', role: 'center' },
-      { email: 'staff@gmail.com',  password: 'staff@123',  role: 'staff'  },
+      { email: 'owner@gmail.com',  password: 'owner@1234',  role: 'owner'  },
+      { email: 'center@gmail.com', password: 'center@1234', role: 'center' },
+      { email: 'staff@gmail.com',  password: 'staff@1234',  role: 'staff'  },
     ];
 
     for (const user of users) {

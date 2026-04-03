@@ -33,6 +33,14 @@ document.addEventListener('DOMContentLoaded', function () {
   // Handle modal
   handleModal();
 
+  // Mobile menu toggle
+  const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+  if (mobileMenuBtn) {
+    mobileMenuBtn.addEventListener('click', () => {
+      document.querySelector('.sidebar').classList.toggle('active');
+    });
+  }
+
   // Load initial module
   const initialHash = window.location.hash.slice(1) || 'dashboard';
   loadModule(initialHash);
@@ -115,7 +123,6 @@ async function loadModule(moduleName) {
   contentArea.innerHTML = '<div class="text-center"><div class="spinner"></div></div>';
 
   try {
-    // Load module content
     let loadModuleName = moduleName;
     if (moduleName === 'membership-billing') loadModuleName = 'memberships';
     const modulePath = `/assets/js/modules/${loadModuleName}/${loadModuleName}.js`;
@@ -125,10 +132,13 @@ async function loadModule(moduleName) {
     }
   } catch (error) {
     console.error('Error loading module:', error);
+    const safeName = utils.escapeHtml(moduleName);
     contentArea.innerHTML = `
-      <div class="text-center">
-        <h3>Module not found</h3>
-        <p>The ${moduleName} module could not be loaded.</p>
+      <div class="text-center" style="padding: 40px;">
+        <h3>Failed to load module</h3>
+        <p>The <strong>${safeName}</strong> module could not be loaded.</p>
+        <p class="text-muted" style="font-size: 13px;">${utils.escapeHtml(error.message)}</p>
+        <button class="btn btn-primary btn-sm" onclick="window.location.hash='dashboard'" style="margin-top: 12px;">Go to Dashboard</button>
       </div>
     `;
   }
@@ -158,19 +168,19 @@ function handleModal() {
   // Closure handled by window.appUtils.closeModal called via inline onclick
 }
 
-// Show modal
+// Show modal (title is escaped to prevent XSS, content is trusted HTML from code)
 function showModal(title, content, size = null) {
   const modal = document.getElementById('modal');
   if (!modal) return;
 
-  // Reset modal content and use template literals to ensure evaluation
   const sizeClass = size === 'large' ? 'modal-large' : (size === 'full' || size === 'xl' ? 'modal-full' : '');
+  const safeTitle = utils.escapeHtml(title);
 
   modal.innerHTML = `
     <div class="modal-content ${sizeClass}">
       <div class="modal-header">
-        <h3 id="modalTitle">${title}</h3>
-        <button class="modal-close" onclick="window.appUtils.closeModal()">&times;</button>
+        <h3 id="modalTitle">${safeTitle}</h3>
+        <button class="modal-close" aria-label="Close modal">&times;</button>
       </div>
       <div class="modal-body" id="modalBody">
         ${content}
@@ -178,7 +188,16 @@ function showModal(title, content, size = null) {
     </div>
   `;
 
+  // Attach close via event listener instead of inline onclick
+  modal.querySelector('.modal-close').addEventListener('click', closeModal);
+  modal.addEventListener('click', function(e) {
+    if (e.target === modal) closeModal();
+  });
+
+  // Focus trap: focus the modal
   modal.classList.add('active');
+  const firstInput = modal.querySelector('input, select, textarea, button:not(.modal-close)');
+  if (firstInput) firstInput.focus();
 }
 
 // Close modal

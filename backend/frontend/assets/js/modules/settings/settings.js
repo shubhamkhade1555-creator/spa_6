@@ -354,7 +354,7 @@ const ENTITIES_LIST = [
   'guest_passes', 'membership_plan_allowed_categories', 'membership_plan_time_restrictions',
   'staff_attendance', 'staff_leaves', 'staff_leave_balance',
   'staff_schedule', 'staff_performance', 'staff_commission',
-  'appointments', 'salon_settings'
+  'salon_settings'
 ];
 
 // Excel sheet names max 31 chars — map long names to short ones

@@ -83,14 +83,11 @@ export async function render(container) {
     attachEventListeners(container);
     updateActiveFiltersDisplay();
 
-    // 🔥 OPEN FORM AFTER DOM IS READY
+    // Open form if triggered from calendar
     if (window.__openCustomerFromCalendar) {
       delete window.__openCustomerFromCalendar;
       showCustomerForm();
     }
-    // Attach event listeners
-    attachEventListeners(container);
-    updateActiveFiltersDisplay();
   } catch (error) {
     console.error('Error loading customers:', error);
     container.innerHTML = `

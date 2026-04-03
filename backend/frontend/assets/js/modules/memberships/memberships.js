@@ -1203,11 +1203,11 @@ function setupManagementEventListeners(container) {
       const startDate = container.querySelector('#membershipStartDate').value;
       const paymentMethod = container.querySelector('#membershipPaymentMethod').value;
       if (!customerId || !planId || !startDate) {
-        alert('Please select a customer and start date.');
+        utils.showToast('Please select a customer and start date.', 'error');
         return;
       }
       if (!paymentMethod) {
-        alert('Please select payment method.');
+        utils.showToast('Please select payment method.', 'error');
         return;
       }
       try {
@@ -1217,14 +1217,13 @@ function setupManagementEventListeners(container) {
           start_date: startDate,
           payment_method: paymentMethod
         });
-        alert('Membership assigned successfully.');
+        utils.showToast('Membership assigned successfully.', 'success');
         const modal = container.querySelector('#assignMembershipModal');
         if (modal) modal.classList.remove('active');
-        // Refresh the view
         render(container);
       } catch (err) {
         console.error('Assign membership failed', err);
-        alert('Failed to assign membership: ' + (err.message || 'Unknown error'));
+        utils.showToast('Failed to assign membership: ' + (err.message || 'Unknown error'), 'error');
       }
     });
   }
@@ -1284,11 +1283,11 @@ function setupManagementEventListeners(container) {
       if (confirm('Delete this plan?')) {
         try {
           await api.memberships.deletePlan(id);
-          alert('Plan deleted');
+          utils.showToast('Plan deleted', 'success');
           render(container);
         } catch (err) {
           console.error('Delete plan failed', err);
-          alert('Failed to delete plan: ' + (err.message || 'Unknown error'));
+          utils.showToast('Failed to delete plan: ' + (err.message || 'Unknown error'), 'error');
         }
       }
     }
@@ -1323,11 +1322,11 @@ function setupManagementEventListeners(container) {
       if (confirm('Are you sure you want to delete this membership?')) {
         try {
           await api.memberships.delete(id);
-          alert('Membership deleted');
+          utils.showToast('Membership deleted', 'success');
           render(container);
         } catch (err) {
           console.error('Delete membership failed', err);
-          alert('Failed to delete membership: ' + (err.message || 'Unknown error'));
+          utils.showToast('Failed to delete membership: ' + (err.message || 'Unknown error'), 'error');
         }
       }
     }
@@ -1345,13 +1344,13 @@ function setupManagementEventListeners(container) {
         const payload = { status };
         if (endDate) payload.end_date = endDate;
         await api.memberships.update(id, payload);
-        alert('Membership updated');
+        utils.showToast('Membership updated', 'success');
         const modal = container.querySelector('#editMembershipModal');
         if (modal) modal.classList.remove('active');
         render(container);
       } catch (err) {
         console.error('Update membership failed', err);
-        alert('Failed to update membership: ' + (err.message || 'Unknown error'));
+        utils.showToast('Failed to update membership: ' + (err.message || 'Unknown error'), 'error');
       }
     });
   }
@@ -1375,13 +1374,13 @@ function setupManagementEventListeners(container) {
       };
       try {
         await api.memberships.updatePlan(id, payload);
-        alert('Plan updated');
+        utils.showToast('Plan updated', 'success');
         const modal = container.querySelector('#editPlanModal');
         if (modal) modal.classList.remove('active');
         render(container);
       } catch (err) {
         console.error('Update plan failed', err);
-        alert('Failed to update plan: ' + (err.message || 'Unknown error'));
+        utils.showToast('Failed to update plan: ' + (err.message || 'Unknown error'), 'error');
       }
     });
   }
