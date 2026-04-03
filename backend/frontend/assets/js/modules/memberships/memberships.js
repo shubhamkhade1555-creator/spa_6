@@ -543,7 +543,7 @@ export async function render(container) {
   try {
     // Check which view to show based on URL hash
     const hash = window.location.hash.substring(1);
-    
+
     if (hash === 'membership-billing') {
       await renderBillingView(container);
     } else {
@@ -570,10 +570,10 @@ async function renderManagementView(container) {
   salonSettings = settings;
 
   const membershipCard = myMembership ? `
-    <div class="card">
+    <div class="card" style="margin-bottom: 24px;">
       <div class="card-header d-flex justify-content-between align-items-center">
         <span>My Membership</span>
-        ${['owner','center'].includes(currentUser?.role) ? `
+        ${['owner', 'center'].includes(currentUser?.role) ? `
         <div class="d-flex gap-2">
           <button class="btn btn-outline btn-sm" data-action="edit-membership" data-membership-id="${myMembership.id}">Edit</button>
           <button class="btn btn-danger btn-sm" data-action="delete-membership" data-membership-id="${myMembership.id}">Delete</button>
@@ -595,11 +595,11 @@ async function renderManagementView(container) {
     </div>
   ` : '';
 
-  const canManage = ['owner','center'].includes(currentUser?.role);
+  const canManage = ['owner', 'center'].includes(currentUser?.role);
   const plansList = plans.map(p => `
-    <div class="plan card">
+    <div class="plan card" style="margin-bottom: 24px;">
       <div class="card-header d-flex justify-content-between align-items-center">
-        <span>${p.name} <span class="badge">${p.tier}</span></span>
+        <span style="font-weight: 600;">${p.name}</span>
         ${canManage ? `<div class="d-flex gap-2">
           <button class="btn btn-outline btn-sm" data-action="edit-plan" data-plan-id="${p.id}">Edit</button>
           <button class="btn btn-danger btn-sm" data-action="delete-plan" data-plan-id="${p.id}">Delete</button>
@@ -608,6 +608,7 @@ async function renderManagementView(container) {
       <div class="card-body">
         <div class="grid grid-2">
           <div>
+            <p style="text-transform: uppercase;"><strong>${p.tier}</strong></p>
             <p><strong>Duration:</strong> ${p.duration_months} months</p>
             <p><strong>Price:</strong> ${utils.formatCurrency(p.price, salonSettings.billing?.currency || 'INR')}</p>
             <p><strong>Discount:</strong> ${Number(p.discount_percentage)}%</p>
@@ -619,7 +620,7 @@ async function renderManagementView(container) {
           </div>
         </div>
         ${canManage ? `
-        <div class="mt-2">
+        <div style="margin-top: 20px;">
           <button class="btn btn-primary btn-sm" data-action="assign-membership" data-plan-id="${p.id}">Add for Customer</button>
         </div>` : ''}
       </div>
@@ -627,7 +628,7 @@ async function renderManagementView(container) {
   `).join('');
 
   const addButton = canManage ? `
-    <div class="card">
+    <div class="card" style="margin-bottom: 24px;">
       <div class="card-body" style="display:flex;justify-content:space-between;align-items:center;">
         <button id="addPlanBtn" class="btn btn-primary">+ Add Membership Plan</button>
         <div class="d-flex gap-2">
@@ -640,12 +641,12 @@ async function renderManagementView(container) {
 
   container.innerHTML = `
     ${addButton}
-    <div class="card"><div class="card-header">Available Plans</div></div>
-    <div class="grid grid-2">
+    <div class="card" style="margin-bottom: 24px;"><div class="card-header">Available Plans</div></div>
+    <div class="grid grid-2" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 24px; margin-bottom: 24px;">
       ${plans.length ? plansList : '<div class="card"><div class="card-body"><p>No plans configured.</p></div></div>'}
     </div>
     ${membershipCard}
-    ${(['owner','center'].includes(currentUser?.role) && myMembership) ? `
+    ${(['owner', 'center'].includes(currentUser?.role) && myMembership) ? `
     <div id="editMembershipModal" class="modal" aria-hidden="true">
       <div class="modal-content">
         <div class="modal-header">
@@ -736,10 +737,10 @@ async function renderManagementView(container) {
             <div><label>Name</label><input id="editPlanName" required /></div>
             <div><label>Tier</label>
               <select id="editPlanTier">
-                <option>silver</option>
-                <option>gold</option>
-                <option>platinum</option>
-                <option>diamond</option>
+                <option>SILVER</option>
+                <option>GOLD</option>
+                <option>PLATINUM</option>
+                <option>DIAMOND</option>
               </select>
             </div>
             <div>
@@ -782,13 +783,13 @@ async function renderManagementView(container) {
   // Add event listeners for view switching
   const customerBtn = container.querySelector('#customerInvoicesBtn');
   const membershipBtn = container.querySelector('#membershipInvoicesBtn');
-  
+
   if (customerBtn) {
     customerBtn.addEventListener('click', () => {
       window.location.hash = 'billing';
     });
   }
-  
+
   if (membershipBtn) {
     membershipBtn.addEventListener('click', () => {
       window.location.hash = 'membership-billing';
@@ -882,12 +883,12 @@ function renderInvoiceTable() {
       </thead>
       <tbody>
         ${membershipInvoices.map(inv => {
-          const subtotal = parseFloat(inv.amount || 0);
-          const tax = parseFloat((subtotal * (taxRate / 100)).toFixed(2));
-          const discount = parseFloat(inv.discount || 0);
-          const total = subtotal + tax - discount;
+    const subtotal = parseFloat(inv.amount || 0);
+    const tax = parseFloat((subtotal * (taxRate / 100)).toFixed(2));
+    const discount = parseFloat(inv.discount || 0);
+    const total = subtotal + tax - discount;
 
-          return `
+    return `
             <tr>
               <td>${inv.invoice_number || `MEM-${String(inv.id).padStart(6, '0')}`}</td>
               <td>${inv.customer_name || 'Unknown'}</td>
@@ -903,7 +904,7 @@ function renderInvoiceTable() {
               </td>
             </tr>
           `;
-        }).join('')}
+  }).join('')}
       </tbody>
     </table>
   `;
@@ -921,8 +922,8 @@ async function showMembershipForm() {
           <select id="customerSelect" class="form-control" required>
             <option value="">Select Customer</option>
             ${customers.map(c =>
-              `<option value="${c.id}">${c.name} (${c.phone || c.mobile || 'No phone'})</option>`
-            ).join('')}
+      `<option value="${c.id}">${c.name} (${c.phone || c.mobile || 'No phone'})</option>`
+    ).join('')}
           </select>
         </div>
 
@@ -931,11 +932,11 @@ async function showMembershipForm() {
           <select id="planSelect" class="form-control" required>
             <option value="">Select Plan</option>
             ${plans.filter(p => p.is_active).map(p =>
-              `<option value="${p.id}" data-price="${p.price}" data-discount="${p.discount_percentage || 0}">
+      `<option value="${p.id}" data-price="${p.price}" data-discount="${p.discount_percentage || 0}">
                 ${p.name} - ${utils.formatCurrency(p.price, salonSettings.billing?.currency || 'INR')}
                 ${p.discount_percentage ? ` (${p.discount_percentage}% off)` : ''}
               </option>`
-            ).join('')}
+    ).join('')}
           </select>
         </div>
 
@@ -1007,7 +1008,7 @@ async function printInvoice(id) {
     const invoice = await api.memberships.getPaymentById(id);
     const currency = salonSettings.billing?.currency || 'INR';
     const taxRate = parseFloat(salonSettings.billing?.taxRate ?? 0);
-    
+
     const subtotal = parseFloat(invoice.amount || 0);
     const tax = parseFloat((subtotal * (taxRate / 100)).toFixed(2));
     const discount = parseFloat(invoice.discount || 0);
@@ -1119,7 +1120,7 @@ function setupManagementEventListeners(container) {
         modal.classList.add('active');
         modal.setAttribute('aria-hidden', 'false');
         container.querySelector('#assignPlanId').value = planId;
-        const today = new Date().toISOString().slice(0,10);
+        const today = new Date().toISOString().slice(0, 10);
         const startInput = container.querySelector('#membershipStartDate');
         if (startInput) startInput.value = today;
       }
@@ -1162,8 +1163,8 @@ function setupManagementEventListeners(container) {
             resultsEl.innerHTML = '<div class="customer-result">No matches</div>';
           } else {
             resultsEl.innerHTML = results.map(r => `
-              <div class="customer-result" data-customer-id="${r.id}" data-name="${r.name || (r.first_name ? (r.first_name + ' ' + (r.last_name||'')) : 'Unknown')}" data-phone="${r.phone || r.mobile || ''}">
-                <strong>${r.name || (r.first_name ? (r.first_name + ' ' + (r.last_name||'')) : 'Unknown')}</strong><br/>
+              <div class="customer-result" data-customer-id="${r.id}" data-name="${r.name || (r.first_name ? (r.first_name + ' ' + (r.last_name || '')) : 'Unknown')}" data-phone="${r.phone || r.mobile || ''}">
+                <strong>${r.name || (r.first_name ? (r.first_name + ' ' + (r.last_name || '')) : 'Unknown')}</strong><br/>
                 <small>${r.phone || r.mobile || ''}</small>
               </div>
             `).join('');
@@ -1210,11 +1211,11 @@ function setupManagementEventListeners(container) {
         return;
       }
       try {
-        await api.memberships.assign({ 
-          customer_id: Number(customerId), 
-          plan_id: Number(planId), 
-          start_date: startDate, 
-          payment_method: paymentMethod 
+        await api.memberships.assign({
+          customer_id: Number(customerId),
+          plan_id: Number(planId),
+          start_date: startDate,
+          payment_method: paymentMethod
         });
         alert('Membership assigned successfully.');
         const modal = container.querySelector('#assignMembershipModal');
@@ -1231,7 +1232,7 @@ function setupManagementEventListeners(container) {
   // Edit/Delete handlers for membership card and plans
   container.addEventListener('click', async (e) => {
     const t = e.target;
-    
+
     // Plan edit
     if (t && t.dataset && t.dataset.action === 'edit-plan') {
       const planId = Number(t.dataset.planId);
@@ -1249,7 +1250,7 @@ function setupManagementEventListeners(container) {
           container.querySelector('#editPlanPrice').value = Number(plan.price) || 0;
           container.querySelector('#editPlanDiscount').value = (plan.discount_percentage ?? 15);
           container.querySelector('#editPlanWallet').value = Number(plan.wallet_credits ?? plan.price) || 0;
-          
+
           // Auto-fill wallet credits from price on change
           const priceInput = container.querySelector('#editPlanPrice');
           const walletInput = container.querySelector('#editPlanWallet');
@@ -1258,7 +1259,7 @@ function setupManagementEventListeners(container) {
               walletInput.value = priceInput.value || '0';
             });
           }
-          
+
           const prioSel = container.querySelector('#editPlanPriority');
           if (prioSel) prioSel.value = plan.priority_level || 'standard';
           container.querySelector('#editPlanDescription').value = plan.description || '';
@@ -1267,7 +1268,7 @@ function setupManagementEventListeners(container) {
         }
       }
     }
-    
+
     // Close plan modal
     if (t && t.dataset && t.dataset.action === 'close-plan-modal') {
       const modal = container.querySelector('#editPlanModal');
@@ -1276,7 +1277,7 @@ function setupManagementEventListeners(container) {
         modal.setAttribute('aria-hidden', 'true');
       }
     }
-    
+
     // Delete plan
     if (t && t.dataset && t.dataset.action === 'delete-plan') {
       const id = Number(t.dataset.planId);
@@ -1291,7 +1292,7 @@ function setupManagementEventListeners(container) {
         }
       }
     }
-    
+
     // Edit membership
     if (t && t.dataset && t.dataset.action === 'edit-membership') {
       const id = t.dataset.membershipId;
@@ -1306,7 +1307,7 @@ function setupManagementEventListeners(container) {
         if (endInput) endInput.value = myMembership.end_date;
       }
     }
-    
+
     // Close edit modal
     if (t && t.dataset && t.dataset.action === 'close-edit-modal') {
       const modal = container.querySelector('#editMembershipModal');
@@ -1315,7 +1316,7 @@ function setupManagementEventListeners(container) {
         modal.setAttribute('aria-hidden', 'true');
       }
     }
-    
+
     // Delete membership
     if (t && t.dataset && t.dataset.action === 'delete-membership') {
       const id = Number(t.dataset.membershipId);

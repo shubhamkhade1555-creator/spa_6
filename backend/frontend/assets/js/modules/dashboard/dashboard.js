@@ -49,9 +49,9 @@ export async function render(container) {
                 <select id="filterStaff" class="f-select"><option value="">All Staff</option></select>
                 <select id="filterService" class="f-select"><option value="">All Services</option></select>
                 <select id="filterBranch" class="f-select"><option value="">All Branches</option></select>
-                <button class="btn-apply" id="applyFilters"><i class="fas fa-sync-alt"></i> Apply</button>
-                <button class="btn-export" id="exportBtn"><i class="fas fa-download"></i> CSV</button>
-                <div class="ml-auto d-flex gap-2">
+                <div class="d-flex flex-wrap align-items-center w-100 mt-2" style="gap: 16px;">
+                    <button class="btn-apply" id="applyFilters"><i class="fas fa-sync-alt"></i> Apply</button>
+                    <button class="btn-export" id="exportBtn"><i class="fas fa-download"></i> CSV</button>
                     <button class="btn-export" data-range="7">7D</button>
                     <button class="btn-export" data-range="30">30D</button>
                     <button class="btn-export" data-range="90">90D</button>

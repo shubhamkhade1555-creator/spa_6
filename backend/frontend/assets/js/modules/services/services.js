@@ -298,7 +298,7 @@ function renderServicesView() {
 
 function renderServicesTable(servicesList) {
   if (servicesList.length === 0) {
-    return '<p class="text-center">No services found</p>';
+    return '';
   }
   
   return `

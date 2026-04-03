@@ -503,7 +503,7 @@ export async function render(container) {
         
         <div class="stats-filter-section">
           <div class="d-flex align-items-center gap-3 mb-3">
-            <label for="monthFilter" class="form-label">Filter Month:</label>
+            <label for="monthFilter" class="form-label mb-0" style="margin-right: 12px;">Filter Month:</label>
             <select id="monthFilter" class="form-control" style="width: auto;">
               <option value="current">Current Month</option>
               <option value="last">Last Month</option>
